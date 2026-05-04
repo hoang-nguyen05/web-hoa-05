@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}Đơn hàng đã được tạo - FlowerShop{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6 text-center">
+        <div class="card shadow-sm border-0 p-5 mt-5 bg-white">
+            <i class="fas fa-check-circle fa-5x text-success mb-4"></i>
+            <h1 class="mb-4 font-weight-bold">Đặt hàng thành công!</h1>
+            <p class="text-muted fs-5 mb-5">Đơn hàng của bạn đã được nhận và đang trong quá trình xử lý.</p>
+            <div class="card bg-light border-0 p-4 mb-5 text-start shadow-sm">
+                <h5 class="mb-3 font-weight-bold text-primary"><i class="fas fa-file-invoice me-2"></i>Chi tiết đơn hàng #{{ order.id }}</h5>
+                <p class="mb-1"><strong>Khách hàng:</strong> {{ order.first_name }} {{ order.last_name }}</p>
+                <p class="mb-1"><strong>Email:</strong> {{ order.email }}</p>
+                <p class="mb-1"><strong>Địa chỉ:</strong> {{ order.address }}</p>
+                <p class="mb-1"><strong>Thành phố:</strong> {{ order.city }}</p>
+                <p class="mb-3"><strong>Trạng thái:</strong> <span class="badge bg-warning text-dark">{{ order.get_status_display }}</span></p>
+                <h4 class="mb-0 text-primary font-weight-bold">Tổng tiền: {{ order.get_total_cost|floatformat:0 }} VNĐ</h4>
+            </div>
+            <div class="d-grid gap-2">
+                <a href="{% url 'order_list' %}" class="btn btn-primary btn-lg py-3">Xem lịch sử đơn hàng</a>
+                <a href="{% url 'home' %}" class="btn btn-outline-secondary">Trở về trang chủ</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

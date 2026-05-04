@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}Đăng nhập - FlowerShop{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-5">
+        <div class="card shadow-sm border-0 p-5 mt-5">
+            <h2 class="text-center mb-4 font-weight-bold text-primary"><i class="fas fa-lock me-2"></i>Đăng nhập</h2>
+            <form method="POST">
+                {% csrf_token %}
+                {{ form|crispy }}
+                <div class="d-grid mt-4">
+                    <button type="submit" class="btn btn-primary btn-lg">Đăng nhập</button>
+                </div>
+            </form>
+            <div class="text-center mt-4">
+                <p class="text-muted">Chưa có tài khoản? <a href="{% url 'register' %}" class="text-primary text-decoration-none">Đăng ký ngay</a></p>
+                <a href="#" class="text-muted text-decoration-none small">Quên mật khẩu?</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

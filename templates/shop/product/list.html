@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {% if category %}{{ category.name }}{% else %}Cửa hàng hoa tươi{% endif %} - FlowerShop
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-3">
+        <div class="card shadow-sm border-0 p-4 mb-4">
+            <h5 class="mb-3 font-weight-bold"><i class="fas fa-list me-2 text-primary"></i>Danh mục</h5>
+            <div class="list-group list-group-flush">
+                <a href="{% url 'product_list' %}" class="list-group-item list-group-item-action {% if not category %}active{% endif %}">Tất cả</a>
+                {% for c in categories %}
+                    <a href="{{ c.get_absolute_url }}" class="list-group-item list-group-item-action {% if category.slug == c.slug %}active{% endif %}">{{ c.name }}</a>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="card shadow-sm border-0 p-4">
+            <h5 class="mb-3 font-weight-bold"><i class="fas fa-sort-amount-down me-2 text-primary"></i>Sắp xếp theo</h5>
+            <form action="." method="get">
+                <select name="sort" class="form-select mb-3" onchange="this.form.submit()">
+                    <option value="newest" {% if request.GET.sort == 'newest' %}selected{% endif %}>Mới nhất</option>
+                    <option value="price_asc" {% if request.GET.sort == 'price_asc' %}selected{% endif %}>Giá: Thấp đến Cao</option>
+                    <option value="price_desc" {% if request.GET.sort == 'price_desc' %}selected{% endif %}>Giá: Cao đến Thấp</option>
+                </select>
+                {% if request.GET.q %}
+                    <input type="hidden" name="q" value="{{ request.GET.q }}">
+                {% endif %}
+            </form>
+        </div>
+    </div>
+
+    <div class="col-md-9">
+        <h2 class="mb-4 font-weight-bold">
+            {% if category %}{{ category.name }}{% else %}Cửa hàng hoa tươi{% endif %}
+            {% if request.GET.q %}<span class="text-muted small fs-5"> - Kết quả tìm kiếm cho "{{ request.GET.q }}"</span>{% endif %}
+        </h2>
+        
+        <div class="row g-4">
+            {% for product in products %}
+                <div class="col-md-4">
+                    <div class="card product-card h-100">
+                        <a href="{{ product.get_absolute_url }}">
+                            {% if product.image %}
+                                <img src="{{ product.image.url }}" class="card-img-top product-img" alt="{{ product.name }}">
+                            {% else %}
+                                <img src="https://via.placeholder.com/300x400?text=Flower" class="card-img-top product-img" alt="{{ product.name }}">
+                            {% endif %}
+                        </a>
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title font-weight-bold">{{ product.name }}</h5>
+                            <p class="text-muted small mb-2">{{ product.category.name }}</p>
+                            <p class="card-text text-primary fs-5 mb-3">{{ product.price|floatformat:0 }} VNĐ</p>
+                            <a href="{{ product.get_absolute_url }}" class="btn btn-outline-dark mt-auto w-100">Xem chi tiết</a>
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="col-12 text-center py-5">
+                    <i class="fas fa-search fa-4x text-muted mb-4"></i>
+                    <h3>Không tìm thấy sản phẩm nào</h3>
+                    <p class="text-muted">Vui lòng thử tìm kiếm với từ khóa khác hoặc chọn danh mục khác.</p>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

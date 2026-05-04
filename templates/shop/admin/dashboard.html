@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - FlowerShop{% endblock %}
+
+{% block content %}
+<h2 class="mb-5 font-weight-bold"><i class="fas fa-chart-line me-2 text-primary"></i>Hệ thống quản trị & Thống kê</h2>
+
+<div class="row g-4 mb-5">
+    <div class="col-md-3">
+        <div class="card shadow-sm border-0 p-4 text-center bg-primary text-white h-100">
+            <i class="fas fa-shopping-bag fa-2x mb-3"></i>
+            <h3 class="fw-bold">{{ total_orders }}</h3>
+            <p class="mb-0 small opacity-75">Tổng đơn hàng</p>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card shadow-sm border-0 p-4 text-center bg-success text-white h-100">
+            <i class="fas fa-money-bill-wave fa-2x mb-3"></i>
+            <h3 class="fw-bold">{{ total_revenue|floatformat:0 }} đ</h3>
+            <p class="mb-0 small opacity-75">Doanh thu</p>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card shadow-sm border-0 p-4 text-center bg-info text-white h-100">
+            <i class="fas fa-users fa-2x mb-3"></i>
+            <h3 class="fw-bold">{{ total_users }}</h3>
+            <p class="mb-0 small opacity-75">Khách hàng</p>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card shadow-sm border-0 p-4 text-center bg-warning text-dark h-100">
+            <i class="fas fa-box fa-2x mb-3"></i>
+            <h3 class="fw-bold">{{ total_products }}</h3>
+            <p class="mb-0 small opacity-75">Sản phẩm</p>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-5 g-4">
+    <div class="col-md-8">
+        <div class="card shadow-sm border-0 p-4 h-100">
+            <h5 class="mb-4 fw-bold text-muted">Doanh thu theo tháng</h5>
+            <canvas id="revenueChart" style="max-height: 300px;"></canvas>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card shadow-sm border-0 p-4 h-100">
+            <h5 class="mb-4 fw-bold text-muted">Trạng thái đơn hàng</h5>
+            <canvas id="statusChart" style="max-height: 300px;"></canvas>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-5 g-4">
+    <div class="col-md-6">
+        <div class="card shadow-sm border-0 p-4 h-100">
+            <h5 class="mb-4 fw-bold text-muted">Top 5 sản phẩm bán chạy</h5>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Sản phẩm</th>
+                            <th class="text-end">Đã bán</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for product in top_products %}
+                            <tr>
+                                <td class="small">{{ product.name }}</td>
+                                <td class="text-end fw-bold text-success">{{ product.total_sold|default:0 }}</td>
+                            </tr>
+                        {% empty %}
+                            <tr><td colspan="2" class="text-center text-muted">Chưa có dữ liệu bán hàng</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card shadow-sm border-0 p-4 h-100">
+            <h5 class="mb-4 fw-bold text-muted">Đơn hàng mới nhất</h5>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <tbody>
+                        {% for order in recent_orders %}
+                            <tr>
+                                <td class="small fw-bold">#{{ order.id }}</td>
+                                <td class="small">{{ order.first_name }}</td>
+                                <td class="text-end">
+                                    <span class="badge {% if order.status == 'pending' %}bg-warning text-dark{% elif order.status == 'approved' %}bg-info{% elif order.status == 'rejected' %}bg-danger{% elif order.status == 'shipped' %}bg-primary{% elif order.status == 'completed' %}bg-success{% endif %}">
+                                        {{ order.get_status_display }}
+                                    </span>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Biểu đồ Doanh thu (Line Chart)
+    const revCtx = document.getElementById('revenueChart').getContext('2d');
+    new Chart(revCtx, {
+        type: 'line',
+        data: {
+            labels: {{ months_labels|safe }},
+            datasets: [{
+                label: 'Doanh thu (VNĐ)',
+                data: {{ revenue_data|safe }},
+                borderColor: '#198754',
+                backgroundColor: 'rgba(25, 135, 84, 0.1)',
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } }
+        }
+    });
+
+    // Biểu đồ Trạng thái (Doughnut Chart)
+    const statusCtx = document.getElementById('statusChart').getContext('2d');
+    new Chart(statusCtx, {
+        type: 'doughnut',
+        data: {
+            labels: {{ status_labels|safe }},
+            datasets: [{
+                data: {{ status_counts|safe }},
+                backgroundColor: ['#ffc107', '#0dcaf0', '#dc3545', '#0d6efd', '#198754'],
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { position: 'bottom' } }
+        }
+    });
+</script>
+{% endblock %}
+{% endblock %}

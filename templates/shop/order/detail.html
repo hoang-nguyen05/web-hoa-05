@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}Chi tiết đơn hàng #{{ order.id }} - FlowerShop{% endblock %}
+
+{% block content %}
+<h2 class="mb-5 font-weight-bold text-center"><i class="fas fa-file-invoice me-2 text-primary"></i>Chi tiết đơn hàng #{{ order.id }}</h2>
+
+<div class="row justify-content-center">
+    <div class="col-md-10">
+        <div class="card shadow-sm border-0 p-5 bg-white">
+            <div class="row mb-5">
+                <div class="col-md-6 border-end">
+                    <h5 class="mb-3 font-weight-bold text-primary"><i class="fas fa-user me-2"></i>Thông tin khách hàng</h5>
+                    <p class="mb-1"><strong>Khách hàng:</strong> {{ order.first_name }} {{ order.last_name }}</p>
+                    <p class="mb-1"><strong>Email:</strong> {{ order.email }}</p>
+                    <p class="mb-1"><strong>Số điện thoại:</strong> {{ order.user.profile.phone|default:"Chưa cung cấp" }}</p>
+                    <p class="mb-0"><strong>Địa chỉ:</strong> {{ order.address }}, {{ order.city }}</p>
+                </div>
+                <div class="col-md-6 ps-md-5">
+                    <h5 class="mb-3 font-weight-bold text-primary"><i class="fas fa-info-circle me-2"></i>Thông tin đơn hàng</h5>
+                    <p class="mb-1"><strong>Ngày đặt:</strong> {{ order.created|date:"d/m/Y H:i" }}</p>
+                    <p class="mb-1"><strong>Trạng thái:</strong> <span class="badge {% if order.status == 'pending' %}bg-warning text-dark{% elif order.status == 'approved' %}bg-info{% elif order.status == 'rejected' %}bg-danger{% elif order.status == 'shipped' %}bg-primary{% elif order.status == 'completed' %}bg-success{% endif %} py-2 px-3">{{ order.get_status_display }}</span></p>
+                    <p class="mb-0"><strong>Thanh toán:</strong> <span class="badge {% if order.paid %}bg-success{% else %}bg-danger{% endif %} py-2 px-3">{% if order.paid %}Đã thanh toán{% else %}Chưa thanh toán{% endif %}</span></p>
+                </div>
+            </div>
+
+            <div class="card bg-light border-0 p-4 shadow-sm mb-5">
+                <h5 class="mb-3 font-weight-bold text-primary"><i class="fas fa-shopping-basket me-2"></i>Sản phẩm đã mua</h5>
+                <div class="table-responsive">
+                    <table class="table table-borderless align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="py-3 px-4">Sản phẩm</th>
+                                <th class="py-3">Đơn giá</th>
+                                <th class="py-3">Số lượng</th>
+                                <th class="py-3 text-end">Thành tiền</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in order.items.all %}
+                                <tr>
+                                    <td class="py-3 px-4 font-weight-bold text-dark">{{ item.product.name }}</td>
+                                    <td class="py-3">{{ item.price|floatformat:0 }} VNĐ</td>
+                                    <td class="py-3">{{ item.quantity }}</td>
+                                    <td class="py-3 text-end font-weight-bold">{{ item.get_cost|floatformat:0 }} VNĐ</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot>
+                            <tr class="border-top">
+                                <td colspan="3" class="py-4 text-end fs-5 font-weight-bold">Tổng tiền:</td>
+                                <td class="py-4 text-end fs-4 font-weight-bold text-primary">{{ order.get_total_cost|floatformat:0 }} VNĐ</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+            <div class="d-grid gap-2">
+                <a href="{% url 'order_list' %}" class="btn btn-outline-secondary">Trở về lịch sử đơn hàng</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
